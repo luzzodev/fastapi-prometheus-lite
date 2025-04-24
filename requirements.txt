@@ -1,0 +1,7 @@
+# Core dependencies
+fastapi>=0.110.0
+prometheus-client>=0.20.0
+
+# Development tools
+hatchling>=1.18.0
+ruff>=0.3.0

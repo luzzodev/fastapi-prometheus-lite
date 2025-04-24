@@ -1,0 +1,66 @@
+[project]
+name = "fastapi-prometheus-lite"
+version = "0.1.0"
+description = "A minimal and fast Prometheus middleware for FastAPI"
+authors = [
+  { name = "Ludovico Conti", email = "" }
+]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = ["fastapi", "prometheus", "metrics", "monitoring", "middleware"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Framework :: FastAPI",
+  "Topic :: System :: Monitoring"
+]
+
+[project.urls]
+Homepage = "https://github.com/luzzodev/fastapi-prometheus-lite"
+Repository = "https://github.com/luzzodev/fastapi-prometheus-lite"
+Issues = "https://github.com/luzzodev/fastapi-prometheus-lite/issues"
+
+[project.dependencies]
+fastapi = ">=0.110.0,<1.0.0"
+prometheus-client = ">=0.20.0,<1.0.0"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+include = ["fastapi_prometheus_lite"]
+exclude = []
+
+[tool.hatch.build.targets.wheel]
+include = ["fastapi_prometheus_lite"]
+exclude = []
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    #"E",  # pycodestyle errors
+   # "W",  # pycodestyle warnings
+    #"F",  # pyflakes
+    "I",  # isort
+    #"B",  # flake8-bugbear
+    #"C",  # flake8-comprehensions
+   # "UP",  # pyupgrade
+    "C408",
+    "F401",
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "B904",
+    "W191",  # indentation contains tabs
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "I001"]
