@@ -1,9 +1,6 @@
 from fastapi import FastAPI
+from starlette.types import Scope, Send, Receive, Message
 from prometheus_client import CollectorRegistry
-
-from .types import Scope, Send, Receive, Message
-
-
 
 
 class FastApiPrometheusMiddleware:

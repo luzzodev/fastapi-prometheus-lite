@@ -1,6 +1,7 @@
 # Core dependencies
 fastapi>=0.110.0
 prometheus-client>=0.20.0
+starlette
 
 # Development tools
 hatchling>=1.18.0

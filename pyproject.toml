@@ -26,6 +26,7 @@ Issues = "https://github.com/luzzodev/fastapi-prometheus-lite/issues"
 [project.dependencies]
 fastapi = ">=0.110.0,<1.0.0"
 prometheus-client = ">=0.20.0,<1.0.0"
+starlette = "*"
 
 [build-system]
 requires = ["hatchling"]

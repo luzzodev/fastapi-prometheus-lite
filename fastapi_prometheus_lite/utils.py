@@ -1,5 +1,5 @@
 from typing import Tuple
-from .types import Scope
+from starlette.types import Scope
 
 
 def extract_path_template_from_scope(scope: Scope) -> Tuple[bool, str]:
