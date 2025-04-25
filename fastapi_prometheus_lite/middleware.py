@@ -28,4 +28,3 @@ class FastApiPrometheusMiddleware:
             await send(message)
 
         await self.app(scope, receive, send_wrapper)
-        breakpoint()

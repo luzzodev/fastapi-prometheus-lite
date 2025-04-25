@@ -4,20 +4,23 @@ from starlette.types import Scope
 
 def extract_path_template_from_scope(scope: Scope) -> Tuple[bool, str]:
     """
-    Try to extract the route path template from the ASGI scope.
-    Extraction will work only on APIRoute
+    Extract the matched route path template from the ASGI scope.
 
-    This function attempts to retrieve the standardized path format (e.g., "/users/{id}")
-    from the 'route' object in the ASGI scope. This is typically present when the request
-    has been routed through FastAPI or Starlette. If extraction fails (e.g., in 404 cases
-    or middleware routes), the function falls back to returning the raw request path.
+    This function attempts to retrieve the path template (e.g., "/users/{id}")
+    that was matched during routing. It expects the 'matched_path_template'
+    key to be present in the scope, which can be injected via a patched
+    Route.matches() method.
 
-    :param scope: The ASGI scope dictionary containing metadata about the request
+    This is useful for logging, tracing, or metrics that depend on route templates
+    rather than raw paths.
+
+    :param scope: The ASGI scope dictionary containing metadata about the request.
     :return: A tuple:
-             - True and the path template if found
-             - False and the raw request path otherwise
+             - (True, path_template) if a matched path template is found.
+             - (False, raw_path) if no template is available.
     """
-    try:
-        return True, scope["route"].path_format
-    except (KeyError, AttributeError):
+    path_template = scope.get("matched_path_template")
+    if path_template is None:
+        # Fall back to raw path if no template was injected
         return False, scope.get("path", "")
+    return True, path_template
