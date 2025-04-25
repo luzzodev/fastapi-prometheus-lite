@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from starlette.types import Scope, Send, Receive, Message
+from starlette.routing import Route
 from prometheus_client import CollectorRegistry
+
+from .route_patcher import patch_starlette_routes
 
 
 class FastApiPrometheusMiddleware:
@@ -13,6 +16,7 @@ class FastApiPrometheusMiddleware:
 
         self.app: FastAPI = app
         self.metrics_registry: CollectorRegistry = registry
+        patch_starlette_routes(Route)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
 
@@ -24,3 +28,4 @@ class FastApiPrometheusMiddleware:
             await send(message)
 
         await self.app(scope, receive, send_wrapper)
+        breakpoint()
