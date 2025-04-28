@@ -24,7 +24,7 @@ class FastApiPrometheusMiddleware:
 
         self.app: FastAPI = app
         self.metrics_registry: CollectorRegistry = registry
-        self.metrics_collectors: list[MetricBase] = metrics_collectors or []
+        self.metrics_collectors: list[MetricBase] = [] if metrics_collectors is None else metrics_collectors
         patch_starlette_routes(Route)
 
         self.active_requests_metrics: Gauge | None = None
