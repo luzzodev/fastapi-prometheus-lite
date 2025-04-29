@@ -1,7 +1,7 @@
 import typing
 from abc import ABC, abstractmethod
-from prometheus_client import CollectorRegistry, REGISTRY, Counter, Gauge
 
+from prometheus_client import REGISTRY, CollectorRegistry, Counter, Gauge
 from starlette.requests import HTTPConnection
 from starlette.types import Scope
 
@@ -48,7 +48,6 @@ class MetricBase(ABC):
 
 
 class LiveMetricBase(ABC):
-
     def __init__(self):
         self._scope: Scope = {}
 
@@ -66,19 +65,14 @@ class LiveMetricBase(ABC):
 
 class TotalRequestsMetric(MetricBase):
     def __init__(
-            self,
-            metric_name: str = "http_requests_total",
-            metric_doc: str = "Total number of requests by method, status and handler.",
-            group_status_code: bool = True,
-            group_unmatched_template: bool = True,
-            registry: CollectorRegistry = REGISTRY
+        self,
+        metric_name: str = "http_requests_total",
+        metric_doc: str = "Total number of requests by method, status and handler.",
+        group_status_code: bool = True,
+        group_unmatched_template: bool = True,
+        registry: CollectorRegistry = REGISTRY,
     ):
-        self._metric = Counter(
-            metric_name,
-            metric_doc,
-            labelnames=("method", "handler", "status"),
-            registry=registry
-        )
+        self._metric = Counter(metric_name, metric_doc, labelnames=("method", "handler", "status"), registry=registry)
 
         self.group_status_code: bool = group_status_code
         self.group_unmatched_template: bool = group_unmatched_template
@@ -91,28 +85,19 @@ class TotalRequestsMetric(MetricBase):
         if self.group_status_code:
             status_code = status_code[0] + "xx"
 
-        self._metric.labels(
-            method=metrics_context.request_method,
-            handler=path_template,
-            status=status_code
-        ).inc()
+        self._metric.labels(method=metrics_context.request_method, handler=path_template, status=status_code).inc()
 
 
 class GlobalActiveRequests(LiveMetricBase):
-
     def __init__(
-            self,
-            metric_name: str = "http_active_requests",
-            metric_doc: str = "Number of current active requests.",
-            registry: CollectorRegistry = REGISTRY
+        self,
+        metric_name: str = "http_active_requests",
+        metric_doc: str = "Number of current active requests.",
+        registry: CollectorRegistry = REGISTRY,
     ):
         super(GlobalActiveRequests, self).__init__()
 
-        self._metric = Gauge(
-            metric_name,
-            metric_doc,
-            registry=registry
-        )
+        self._metric = Gauge(metric_name, metric_doc, registry=registry)
 
     def __enter__(self) -> "GlobalActiveRequests":
         self._metric.inc()

@@ -12,22 +12,22 @@ This codebase borrows the idea of modular metric collectors and ASGI middleware-
 adapted into a minimalistic and flexible form.
 """
 
-from fastapi import FastAPI, Response
-from typing import Any
 from enum import Enum
-from prometheus_client import CollectorRegistry, REGISTRY, generate_latest, CONTENT_TYPE_LATEST
+from typing import Any
 
-from fastapi_prometheus_lite.metrics import MetricBase, LiveMetricBase
+from fastapi import FastAPI, Response
+from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, CollectorRegistry, generate_latest
+
+from fastapi_prometheus_lite.metrics import LiveMetricBase, MetricBase
 from fastapi_prometheus_lite.middleware import FastApiPrometheusMiddleware
 
 
 class FastApiPrometheusLite:
-
     def __init__(
-            self,
-            registry: CollectorRegistry | None = None,
-            metrics_collectors: list[MetricBase] | None = None,
-            live_metrics_collectors: list[LiveMetricBase] | None = None,
+        self,
+        registry: CollectorRegistry | None = None,
+        metrics_collectors: list[MetricBase] | None = None,
+        live_metrics_collectors: list[LiveMetricBase] | None = None,
     ):
         self.registry = registry or REGISTRY
         self.metrics_collectors: list[MetricBase] = []
@@ -44,17 +44,17 @@ class FastApiPrometheusLite:
             FastApiPrometheusMiddleware,
             self.registry,
             metrics_collectors=self.metrics_collectors,
-            live_metrics_collectors=self.live_metrics_collectors
+            live_metrics_collectors=self.live_metrics_collectors,
         )
         return self
 
     def expose(
-            self,
-            app: FastAPI,
-            endpoint: str = "/metrics",
-            include_in_schema: bool = True,
-            tags: list[str | Enum] | None = None,
-            **kwargs: Any,
+        self,
+        app: FastAPI,
+        endpoint: str = "/metrics",
+        include_in_schema: bool = True,
+        tags: list[str | Enum] | None = None,
+        **kwargs: Any,
     ) -> "FastApiPrometheusLite":
         assert isinstance(app, FastAPI), "Metrics must be exposed on FastApi app!"
 

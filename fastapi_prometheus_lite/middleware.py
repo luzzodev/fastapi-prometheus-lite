@@ -1,28 +1,26 @@
 import logging
 import timeit
-
 from contextlib import ExitStack
-from fastapi import FastAPI
-from starlette.types import Scope, Send, Receive, Message
-from starlette.routing import Route
-from prometheus_client import CollectorRegistry
 
+from fastapi import FastAPI
+from prometheus_client import CollectorRegistry
+from starlette.routing import Route
+from starlette.types import Message, Receive, Scope, Send
+
+from .metrics import LiveMetricBase, MetricBase, MetricsContext
 from .route_patcher import patch_starlette_routes
-from .metrics import MetricBase, LiveMetricBase, MetricsContext
 
 logger = logging.getLogger(__name__)
 
 
 class FastApiPrometheusMiddleware:
-
     def __init__(
-            self,
-            app: FastAPI,
-            registry: CollectorRegistry,
-            metrics_collectors: list[MetricBase],
-            live_metrics_collectors: list[LiveMetricBase]
+        self,
+        app: FastAPI,
+        registry: CollectorRegistry,
+        metrics_collectors: list[MetricBase],
+        live_metrics_collectors: list[LiveMetricBase],
     ):
-
         self.app: FastAPI = app
         self.metrics_registry: CollectorRegistry = registry
         self.metrics_collectors: list[MetricBase] = metrics_collectors
@@ -32,7 +30,6 @@ class FastApiPrometheusMiddleware:
         patch_starlette_routes(Route)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
-
         # We collect metrics only from Http. If this is not http just forward it.
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
@@ -48,7 +45,6 @@ class FastApiPrometheusMiddleware:
             await send(message)
 
         with ExitStack() as exit_stack:
-
             for live_metric_collector in self.live_metrics_collectors:
                 live_metric_collector.update_scope(scope)
                 exit_stack.enter_context(live_metric_collector)
@@ -63,7 +59,6 @@ class FastApiPrometheusMiddleware:
                     "global_active_requests": self.global_active_requests,
                     "request_duration": duration,
                     "status_code": status_code,
-
                 }
                 self.global_active_requests -= 1
 
