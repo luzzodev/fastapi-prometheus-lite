@@ -1,6 +1,6 @@
 [project]
 name = "fastapi-prometheus-lite"
-version = "0.2.0"
+version = "0.2.1"
 description = "A minimal and fast Prometheus middleware for FastAPI"
 authors = [
     { name = "Ludovico Conti", email = "" },
