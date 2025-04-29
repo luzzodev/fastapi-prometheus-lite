@@ -1,13 +1,14 @@
 [project]
 name = "fastapi-prometheus-lite"
-version = "0.1.0"
+version = "0.2.0"
 description = "A minimal and fast Prometheus middleware for FastAPI"
 authors = [
-  { name = "Ludovico Conti", email = "" }
+    { name = "Ludovico Conti", email = "" },
+    { name = "Riccardo Tocchini", email = "" }
 ]
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = ["fastapi", "prometheus", "metrics", "monitoring", "middleware"]
 classifiers = [
   "Development Status :: 3 - Alpha",
