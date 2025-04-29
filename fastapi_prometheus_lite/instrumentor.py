@@ -17,7 +17,7 @@ from typing import Any
 from enum import Enum
 from prometheus_client import CollectorRegistry, REGISTRY, generate_latest, CONTENT_TYPE_LATEST
 
-from fastapi_prometheus_lite.metrics import MetricBase
+from fastapi_prometheus_lite.metrics import MetricBase, LiveMetricBase
 from fastapi_prometheus_lite.middleware import FastApiPrometheusMiddleware
 
 
@@ -26,19 +26,25 @@ class FastApiPrometheusLite:
     def __init__(
             self,
             registry: CollectorRegistry | None = None,
-            metrics_collectors: list | None = None,
-            enable_active_requests_metric: bool = True
+            metrics_collectors: list[MetricBase] | None = None,
+            live_metrics_collectors: list[LiveMetricBase] | None = None,
     ):
         self.registry = registry or REGISTRY
-        self.metrics_collectors: list[MetricBase] = [] if metrics_collectors is None else metrics_collectors
-        self.enable_active_requests_metric: bool = enable_active_requests_metric
+        self.metrics_collectors: list[MetricBase] = []
+        self.live_metrics_collectors: list[LiveMetricBase] = []
+
+        if metrics_collectors is not None:
+            self.metrics_collectors = metrics_collectors
+
+        if live_metrics_collectors is not None:
+            self.live_metrics_collectors = live_metrics_collectors
 
     def instrument(self, app: FastAPI) -> "FastApiPrometheusLite":
         app.add_middleware(
             FastApiPrometheusMiddleware,
             self.registry,
             metrics_collectors=self.metrics_collectors,
-            enable_active_requests_metric=self.enable_active_requests_metric
+            live_metrics_collectors=self.live_metrics_collectors
         )
         return self
 
