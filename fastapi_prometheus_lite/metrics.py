@@ -13,7 +13,7 @@ class MetricsContext(HTTPConnection):
         super().__init__(scope)
 
     @property
-    def global_active_requests(self) -> tuple[bool, str]:
+    def global_active_requests(self) -> int:
         if not hasattr(self, "_global_active_requests"):
             self._global_active_requests = self.scope["metrics_context"]["global_active_requests"]
         return self._global_active_requests
