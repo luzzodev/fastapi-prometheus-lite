@@ -23,12 +23,33 @@ from fastapi_prometheus_lite.middleware import FastApiPrometheusMiddleware
 
 
 class FastApiPrometheusLite:
+    """
+    Lightweight Prometheus integration for FastAPI applications.
+
+    - Manages both regular and live metrics collectors.
+    - Instruments FastAPI with Prometheus middleware.
+    - Exposes a Prometheus-compatible metrics endpoint.
+    """
+
     def __init__(
         self,
         registry: CollectorRegistry | None = None,
         metrics_collectors: list[MetricBase] | None = None,
         live_metrics_collectors: list[LiveMetricBase] | None = None,
     ):
+        """
+        Initialize the Prometheus metrics integration handler.
+
+        :param registry: Optional Prometheus `CollectorRegistry` instance.
+            Defaults to the global `REGISTRY` if not provided.
+        :type registry: Optional[CollectorRegistry]
+
+        :param metrics_collectors: A list of metric collectors that operate after the request lifecycle.
+        :type metrics_collectors: Optional[list[MetricBase]]
+
+        :param live_metrics_collectors: A list of live metric collectors that operate during the request lifecycle.
+        :type live_metrics_collectors: Optional[list[LiveMetricBase]]
+        """
         self.registry = registry or REGISTRY
         self.metrics_collectors: list[MetricBase] = []
         self.live_metrics_collectors: list[LiveMetricBase] = []
@@ -40,6 +61,15 @@ class FastApiPrometheusLite:
             self.live_metrics_collectors = live_metrics_collectors
 
     def instrument(self, app: FastAPI) -> "FastApiPrometheusLite":
+        """
+        Attach Prometheus middleware to a FastAPI application.
+
+        :param app: The FastAPI application instance to instrument.
+        :type app: FastAPI
+
+        :return: The current `FastApiPrometheusLite` instance (for chaining).
+        :rtype: FastApiPrometheusLite
+        """
         app.add_middleware(
             FastApiPrometheusMiddleware,
             self.registry,
@@ -56,6 +86,26 @@ class FastApiPrometheusLite:
         tags: list[str | Enum] | None = None,
         **kwargs: Any,
     ) -> "FastApiPrometheusLite":
+        """
+        Expose a Prometheus metrics endpoint in the FastAPI application.
+
+        :param app: The FastAPI application where the metrics endpoint will be registered.
+        :type app: FastAPI
+
+        :param endpoint: URL path for exposing the metrics. Defaults to ``/metrics``.
+        :type endpoint: str
+
+        :param include_in_schema: Whether to include the metrics endpoint in the OpenAPI schema. Defaults to ``True``.
+        :type include_in_schema: bool
+
+        :param tags: Optional tags to assign to the OpenAPI route for documentation purposes.
+        :type tags: Optional[list[Union[str, Enum]]]
+
+        :param kwargs: Additional parameters forwarded to `FastAPI.app.get()`.
+
+        :return: The current `FastApiPrometheusLite` instance (for chaining).
+        :rtype: FastApiPrometheusLite
+        """
         assert isinstance(app, FastAPI), "Metrics must be exposed on FastApi app!"
 
         def metrics_endpoint() -> Response:

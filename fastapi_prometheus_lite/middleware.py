@@ -14,6 +14,15 @@ logger = logging.getLogger(__name__)
 
 
 class FastApiPrometheusMiddleware:
+    """
+    ASGI middleware for Prometheus metrics integration in FastAPI applications.
+
+    This middleware wraps each incoming HTTP request to:
+    - Track live metrics during the lifecycle of a request
+    - Run post-request metrics collection logic
+    - Attach request metrics to a Prometheus registry
+    """
+
     def __init__(
         self,
         app: FastAPI,
@@ -21,6 +30,16 @@ class FastApiPrometheusMiddleware:
         metrics_collectors: list[MetricBase],
         live_metrics_collectors: list[LiveMetricBase],
     ):
+        """
+        Initialize the Prometheus middleware.
+
+        :param app: The FastAPI application to wrap with middleware.
+        :param registry: The Prometheus CollectorRegistry used to register metrics.
+        :param metrics_collectors: A list of MetricBase instances to collect metrics
+            after the request lifecycle is complete.
+        :param live_metrics_collectors: A list of LiveMetricBase instances to track
+            metrics during the active request lifecycle.
+        """
         self.app: FastAPI = app
         self.metrics_registry: CollectorRegistry = registry
         self.metrics_collectors: list[MetricBase] = metrics_collectors
@@ -30,6 +49,20 @@ class FastApiPrometheusMiddleware:
         patch_starlette_routes(Route)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
+        """
+        ASGI entry point for handling requests.
+
+        Called automatically for each request and responsible for:
+        - Filtering non-HTTP scopes
+        - Managing live metric entry and exit (e.g. active counters)
+        - Capturing request duration and status
+        - Invoking post-request metric collectors
+
+        :param scope: The ASGI scope object for the request.
+        :param receive: The ASGI receive callable.
+        :param send: The ASGI send callable.
+        """
+
         # We collect metrics only from Http. If this is not http just forward it.
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
