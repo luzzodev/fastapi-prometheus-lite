@@ -1,3 +1,4 @@
+import re
 import logging
 import timeit
 from contextlib import ExitStack
@@ -6,9 +7,11 @@ from fastapi import FastAPI
 from prometheus_client import CollectorRegistry
 from starlette.routing import Route
 from starlette.types import Message, Receive, Scope, Send
+from typing import Pattern
 
 from .metrics import LiveMetricBase, MetricBase, MetricsContext
 from .route_patcher import patch_starlette_routes
+
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +32,7 @@ class FastApiPrometheusMiddleware:
         registry: CollectorRegistry,
         metrics_collectors: list[MetricBase],
         live_metrics_collectors: list[LiveMetricBase],
+        excluded_paths: list[str],
     ):
         """
         Initialize the Prometheus middleware.
@@ -39,14 +43,22 @@ class FastApiPrometheusMiddleware:
             after the request lifecycle is complete.
         :param live_metrics_collectors: A list of LiveMetricBase instances to track
             metrics during the active request lifecycle.
+        :param excluded_paths: A list of path that will be excluded from the tracking.
         """
         self.app: FastAPI = app
         self.metrics_registry: CollectorRegistry = registry
         self.metrics_collectors: list[MetricBase] = metrics_collectors
         self.live_metrics_collectors: list[LiveMetricBase] = live_metrics_collectors
         self.global_active_requests: int = 0
+        self.excluded_paths: set[Pattern] = set(re.compile(path) for path in excluded_paths)
 
         patch_starlette_routes(Route)
+
+    def _is_path_excluded(self, scope: Scope) -> bool:
+        requested_path: str = scope.get("path", None)
+        if requested_path is None:
+            return True
+        return any(pattern.search(requested_path) for pattern in self.excluded_paths)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
@@ -64,7 +76,7 @@ class FastApiPrometheusMiddleware:
         """
 
         # We collect metrics only from Http. If this is not http just forward it.
-        if scope["type"] != "http":
+        if scope["type"] != "http" or self._is_path_excluded(scope):
             return await self.app(scope, receive, send)
 
         status_code = 500

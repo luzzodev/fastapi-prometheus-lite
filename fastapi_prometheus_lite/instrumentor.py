@@ -36,6 +36,7 @@ class FastApiPrometheusLite:
         registry: CollectorRegistry | None = None,
         metrics_collectors: list[MetricBase] | None = None,
         live_metrics_collectors: list[LiveMetricBase] | None = None,
+        excluded_paths: list[str] | None = None,
     ):
         """
         Initialize the Prometheus metrics integration handler.
@@ -49,16 +50,23 @@ class FastApiPrometheusLite:
 
         :param live_metrics_collectors: A list of live metric collectors that operate during the request lifecycle.
         :type live_metrics_collectors: Optional[list[LiveMetricBase]]
+
+        :param excluded_paths: A list of path that will be excluded from the tracking.
+        :type excluded_paths: Optional[list[str]]
         """
         self.registry = registry or REGISTRY
         self.metrics_collectors: list[MetricBase] = []
         self.live_metrics_collectors: list[LiveMetricBase] = []
+        self.excluded_paths: list[str] = []
 
         if metrics_collectors is not None:
             self.metrics_collectors = metrics_collectors
 
         if live_metrics_collectors is not None:
             self.live_metrics_collectors = live_metrics_collectors
+
+        if excluded_paths is not None:
+            self.excluded_paths = excluded_paths
 
     def instrument(self, app: FastAPI) -> "FastApiPrometheusLite":
         """
@@ -75,6 +83,7 @@ class FastApiPrometheusLite:
             self.registry,
             metrics_collectors=self.metrics_collectors,
             live_metrics_collectors=self.live_metrics_collectors,
+            excluded_paths=self.excluded_paths,
         )
         return self
 
