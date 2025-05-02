@@ -1,17 +1,16 @@
-import re
 import logging
+import re
 import timeit
 from contextlib import ExitStack
+from typing import Pattern
 
 from fastapi import FastAPI
 from prometheus_client import CollectorRegistry
 from starlette.routing import Route
 from starlette.types import Message, Receive, Scope, Send
-from typing import Pattern
 
 from .metrics import LiveMetricBase, MetricBase, MetricsContext
 from .route_patcher import patch_starlette_routes
-
 
 logger = logging.getLogger(__name__)
 
