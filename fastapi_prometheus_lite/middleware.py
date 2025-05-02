@@ -51,7 +51,6 @@ class FastApiPrometheusMiddleware:
         self.global_active_requests: int = 0
         self.excluded_paths: set[Pattern] = set(re.compile(path) for path in excluded_paths)
 
-
         for metric_collector in self.metrics_collectors + self.live_metrics_collectors:
             if isinstance(metric_collector, RegistrableMetric):
                 if not metric_collector.register(self.metrics_registry):

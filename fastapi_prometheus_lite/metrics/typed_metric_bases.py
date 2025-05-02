@@ -3,7 +3,7 @@ from typing import Any, Iterable, Optional
 
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, Summary
 
-from .base import MetricBase, RegistrableMetric, MetricsContext
+from .base import MetricBase, MetricsContext, RegistrableMetric
 
 
 class CounterMetricBase(MetricBase, RegistrableMetric):

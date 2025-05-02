@@ -2,7 +2,6 @@ import typing
 from abc import ABC, abstractmethod
 
 from prometheus_client.metrics import Collector, CollectorRegistry
-
 from starlette.requests import HTTPConnection
 from starlette.types import Scope
 
@@ -101,6 +100,7 @@ class RegistrableMetric(ABC):
     - a `.metric: Collector` attribute (default None)
     - a `.register(registry)` method to hook that collector into any registry
     """
+
     _metric: Collector | None = None
 
     def register(self, registry: CollectorRegistry) -> bool:

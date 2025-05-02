@@ -4,8 +4,8 @@ from starlette.types import Scope
 
 from fastapi_prometheus_lite.route_patcher import patch_starlette_routes, patched_matches
 
-
 # --- helper endpoints (we only care about matches, not dispatch) ---
+
 
 async def dummy_http(request):
     return None
