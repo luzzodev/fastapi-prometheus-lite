@@ -1,6 +1,6 @@
-from typing import Any, Iterable
+from typing import Any, Iterable, Optional
 
-from prometheus_client import REGISTRY, CollectorRegistry
+from prometheus_client import CollectorRegistry
 
 from fastapi_prometheus_lite.metrics import LiveGaugeMetricBase
 
@@ -11,7 +11,7 @@ class GlobalActiveRequestsCollector(LiveGaugeMetricBase):
         metric_name: str = "http_active_requests",
         metric_doc: str = "Number of current active requests.",
         labelnames: Iterable[str] = (),
-        registry: CollectorRegistry = REGISTRY,
+        registry: Optional[CollectorRegistry] = None,
         **kwargs: Any,
     ):
         super().__init__(metric_name, metric_doc, labelnames=labelnames, registry=registry, **kwargs)

@@ -1,6 +1,8 @@
 import typing
 from abc import ABC, abstractmethod
 
+from prometheus_client.metrics import Collector, CollectorRegistry
+
 from starlette.requests import HTTPConnection
 from starlette.types import Scope
 
@@ -90,6 +92,30 @@ class MetricsContext(HTTPConnection):
         if not hasattr(self, "_response_status_code"):
             self._response_status_code = self.scope["metrics_context"]["status_code"]
         return self._response_status_code
+
+
+class RegistrableMetric(ABC):
+    """
+    Mixin that gives you:
+
+    - a `.metric: Collector` attribute (default None)
+    - a `.register(registry)` method to hook that collector into any registry
+    """
+    _metric: Collector | None = None
+
+    def register(self, registry: CollectorRegistry) -> bool:
+        """
+        Register `self.metric` into the given registry.
+        Safe to call multiple times.
+        """
+        if self._metric is None:
+            raise ValueError(f"{self.__class__.__name__}.metric is not initialized")
+        try:
+            registry.register(self._metric)
+        except ValueError:
+            # already registered; ignore
+            return False
+        return True
 
 
 class MetricBase(ABC):

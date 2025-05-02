@@ -1,6 +1,6 @@
-from typing import Any, Iterable
+from typing import Any, Iterable, Optional
 
-from prometheus_client import REGISTRY, CollectorRegistry
+from prometheus_client import CollectorRegistry
 
 from fastapi_prometheus_lite.metrics import CounterMetricBase, MetricsContext
 
@@ -13,7 +13,7 @@ class TotalRequestsCollector(CounterMetricBase):
         labelnames: Iterable[str] = ("method", "handler", "status"),
         group_status_code: bool = True,
         group_unmatched_template: bool = True,
-        registry: CollectorRegistry = REGISTRY,
+        registry: Optional[CollectorRegistry] = None,
         **kwargs: Any,
     ):
         super().__init__(metric_name, metric_doc, labelnames=labelnames, registry=registry, **kwargs)

@@ -1,12 +1,12 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Any, Iterable, Optional
 
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, Summary
 
-from .base import MetricBase, MetricsContext
+from .base import MetricBase, RegistrableMetric, MetricsContext
 
 
-class CounterMetricBase(MetricBase, ABC):
+class CounterMetricBase(MetricBase, RegistrableMetric):
     """
     Base for Counter-style metrics.
 
@@ -23,7 +23,11 @@ class CounterMetricBase(MetricBase, ABC):
         registry: Optional[CollectorRegistry] = None,
         **kwargs: Any,
     ):
-        self.metric = Counter(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+        self._metric: Counter = Counter(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+
+    @property
+    def metric(self) -> Counter:
+        return self._metric
 
     @abstractmethod
     def __call__(self, ctx: MetricsContext):
@@ -35,7 +39,7 @@ class CounterMetricBase(MetricBase, ABC):
         """
 
 
-class GaugeMetricBase(MetricBase, ABC):
+class GaugeMetricBase(MetricBase, RegistrableMetric):
     """
     Base for Gauge-style metrics.
 
@@ -51,7 +55,11 @@ class GaugeMetricBase(MetricBase, ABC):
         registry: Optional[CollectorRegistry] = None,
         **kwargs: Any,
     ):
-        self.metric = Gauge(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+        self._metric: Gauge = Gauge(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+
+    @property
+    def metric(self) -> Gauge:
+        return self._metric
 
     @abstractmethod
     def __call__(self, ctx: MetricsContext):
@@ -60,7 +68,7 @@ class GaugeMetricBase(MetricBase, ABC):
         """
 
 
-class HistogramMetricBase(MetricBase, ABC):
+class HistogramMetricBase(MetricBase, RegistrableMetric):
     """
     Base for Histogram-style metrics.
 
@@ -76,7 +84,11 @@ class HistogramMetricBase(MetricBase, ABC):
         registry: Optional[CollectorRegistry] = None,
         **kwargs: Any,  # e.g. buckets=(...)
     ):
-        self.metric = Histogram(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+        self._metric: Histogram = Histogram(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+
+    @property
+    def metric(self) -> Histogram:
+        return self._metric
 
     @abstractmethod
     def __call__(self, ctx: MetricsContext):
@@ -85,7 +97,7 @@ class HistogramMetricBase(MetricBase, ABC):
         """
 
 
-class SummaryMetricBase(MetricBase, ABC):
+class SummaryMetricBase(MetricBase, RegistrableMetric):
     """
     Base for Summary-style metrics.
 
@@ -101,7 +113,11 @@ class SummaryMetricBase(MetricBase, ABC):
         registry: Optional[CollectorRegistry] = None,
         **kwargs: Any,
     ):
-        self.metric = Summary(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+        self._metric: Summary = Summary(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+
+    @property
+    def metric(self) -> Summary:
+        return self._metric
 
     @abstractmethod
     def __call__(self, ctx: MetricsContext):

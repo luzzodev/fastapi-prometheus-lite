@@ -1,12 +1,12 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Any, Iterable, Optional
 
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, Summary
 
-from .base import LiveMetricBase
+from .base import LiveMetricBase, RegistrableMetric
 
 
-class LiveCounterMetricBase(LiveMetricBase, ABC):
+class LiveCounterMetricBase(LiveMetricBase, RegistrableMetric):
     """
     Base for Counter‐style live metrics.
 
@@ -22,7 +22,11 @@ class LiveCounterMetricBase(LiveMetricBase, ABC):
         **kwargs: Any,
     ):
         super().__init__()
-        self.metric: Counter = Counter(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+        self._metric: Counter = Counter(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+
+    @property
+    def metric(self) -> Counter:
+        return self._metric
 
     @abstractmethod
     def __enter__(self) -> "LiveCounterMetricBase":
@@ -37,7 +41,7 @@ class LiveCounterMetricBase(LiveMetricBase, ABC):
         """
 
 
-class LiveGaugeMetricBase(LiveMetricBase, ABC):
+class LiveGaugeMetricBase(LiveMetricBase, RegistrableMetric):
     """
     Base for Gauge‐style live metrics.
 
@@ -53,7 +57,11 @@ class LiveGaugeMetricBase(LiveMetricBase, ABC):
         **kwargs: Any,
     ):
         super().__init__()
-        self.metric: Gauge = Gauge(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+        self._metric: Gauge = Gauge(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+
+    @property
+    def metric(self) -> Gauge:
+        return self._metric
 
     @abstractmethod
     def __enter__(self) -> "LiveGaugeMetricBase":
@@ -68,7 +76,7 @@ class LiveGaugeMetricBase(LiveMetricBase, ABC):
         """
 
 
-class LiveHistogramMetricBase(LiveMetricBase, ABC):
+class LiveHistogramMetricBase(LiveMetricBase, RegistrableMetric):
     """
     Base for Histogram‐style live metrics.
 
@@ -84,7 +92,11 @@ class LiveHistogramMetricBase(LiveMetricBase, ABC):
         **kwargs: Any,  # e.g. buckets
     ):
         super().__init__()
-        self.metric: Histogram = Histogram(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+        self._metric: Histogram = Histogram(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+
+    @property
+    def metric(self) -> Histogram:
+        return self._metric
 
     @abstractmethod
     def __enter__(self) -> "LiveHistogramMetricBase":
@@ -99,7 +111,7 @@ class LiveHistogramMetricBase(LiveMetricBase, ABC):
         """
 
 
-class LiveSummaryMetricBase(LiveMetricBase, ABC):
+class LiveSummaryMetricBase(LiveMetricBase, RegistrableMetric):
     """
     Base for Summary‐style live metrics.
 
@@ -115,7 +127,11 @@ class LiveSummaryMetricBase(LiveMetricBase, ABC):
         **kwargs: Any,
     ):
         super().__init__()
-        self.metric: Summary = Summary(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+        self._metric: Summary = Summary(name, documentation, labelnames=labelnames, registry=registry, **kwargs)
+
+    @property
+    def metric(self) -> Summary:
+        return self._metric
 
     @abstractmethod
     def __enter__(self) -> "LiveSummaryMetricBase":
