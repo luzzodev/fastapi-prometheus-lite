@@ -340,5 +340,5 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,pycharm,python
 
 log/*
-tests
-tests/*
+tests/local
+tests/local/*
