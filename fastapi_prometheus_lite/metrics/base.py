@@ -49,7 +49,7 @@ class MetricsContext(HTTPConnection):
         This helps group metrics by route template (e.g., `/users/{id}`).
 
         :return: A tuple containing a boolean indicating if the match succeeded,
-            and the matched path template string.
+            and the matched path template string. If unmatched, raw_path will be returned instead of the template one.
         :rtype: tuple[bool, str]
         """
         if not hasattr(self, "_matched_path_template"):
