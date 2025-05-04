@@ -11,6 +11,8 @@ from fastapi_prometheus_lite.metrics.post_metrics import (
 )
 from fastapi_prometheus_lite.collectors.base import MetricsContext
 
+from starlette.responses import Response
+
 
 @pytest.fixture
 def registry():
@@ -40,7 +42,7 @@ def scope_with_metrics(base_scope, metrics_context):
 # ---- Post-request collectors metrics ----
 def test_request_counter_increments(registry, scope_with_metrics):
     labels = {"method": "GET", "handler": "/users", "status": "200"}
-    ctx = MetricsContext(scope_with_metrics)
+    ctx = MetricsContext(scope_with_metrics, response=Response(status_code=200))
     rc = TotalRequests(group_unmatched_template=False, group_status_code=False, registry=registry)
     rc(ctx)
 

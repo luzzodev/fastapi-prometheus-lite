@@ -25,7 +25,7 @@ class TotalRequests(CounterCollectorBase):
         matched, path_template = metrics_context.matched_path_template
         if self.group_unmatched_template and not matched:
             path_template = "None"
-        status_code = str(metrics_context.response_status_code)
+        status_code = str(metrics_context.response.status_code)
         if self.group_status_code:
             status_code = status_code[0] + "xx"
 

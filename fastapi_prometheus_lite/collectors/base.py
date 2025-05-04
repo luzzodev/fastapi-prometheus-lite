@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 from prometheus_client.metrics import Collector, CollectorRegistry
 from starlette.requests import HTTPConnection
+from starlette.responses import Response
 from starlette.types import Scope
 
 from fastapi_prometheus_lite.utils import extract_path_template_from_scope
@@ -18,14 +19,23 @@ class MetricsContext(HTTPConnection):
     such as request duration, status code, HTTP method, and matched route template.
     """
 
-    def __init__(self, scope: Scope):
+    def __init__(self, scope: Scope, response: typing.Optional[Response] = None):
         """
         Initialize the MetricsContext with an ASGI scope.
 
         :param scope: The ASGI scope object passed by the framework.
         :type scope: Scope
+
+        :param response: The response object from the framework.
+        :type scope: Optional[Response]
         """
         super().__init__(scope)
+        self._matched_path_template: tuple[bool, str] = extract_path_template_from_scope(self.scope)
+        self._response: Response = response or Response(status_code=500)
+
+    @property
+    def response(self) -> typing.Optional[Response]:
+        return self._response
 
     @property
     def global_active_requests(self) -> int:
@@ -37,9 +47,7 @@ class MetricsContext(HTTPConnection):
         :return: The current number of active requests.
         :rtype: int
         """
-        if not hasattr(self, "_global_active_requests"):
-            self._global_active_requests = self.scope["metrics_context"]["global_active_requests"]
-        return self._global_active_requests
+        return self.scope["metrics_context"]["global_active_requests"]
 
     @property
     def matched_path_template(self) -> tuple[bool, str]:
@@ -52,8 +60,6 @@ class MetricsContext(HTTPConnection):
             and the matched path template string. If unmatched, raw_path will be returned instead of the template one.
         :rtype: tuple[bool, str]
         """
-        if not hasattr(self, "_matched_path_template"):
-            self._matched_path_template = extract_path_template_from_scope(self.scope)
         return self._matched_path_template
 
     @property
@@ -76,21 +82,7 @@ class MetricsContext(HTTPConnection):
         :return: The request duration.
         :rtype: float
         """
-        if not hasattr(self, "_request_duration"):
-            self._request_duration = self.scope["metrics_context"]["request_duration"]
-        return self._request_duration
-
-    @property
-    def response_status_code(self) -> int:
-        """
-        The HTTP response status code for the request.
-
-        :return: The status code as an integer (e.g., 200, 404).
-        :rtype: int
-        """
-        if not hasattr(self, "_response_status_code"):
-            self._response_status_code = self.scope["metrics_context"]["status_code"]
-        return self._response_status_code
+        return self.scope["metrics_context"]["request_duration"]
 
 
 class RegistrableCollector(ABC):

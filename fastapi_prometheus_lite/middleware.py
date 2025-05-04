@@ -7,7 +7,10 @@ from typing import Pattern
 from fastapi import FastAPI
 from prometheus_client import CollectorRegistry
 from starlette.routing import Route
+from starlette.datastructures import Headers
+from starlette.responses import Response
 from starlette.types import Message, Receive, Scope, Send
+
 
 from .collectors import LiveCollectorBase, CollectorBase, MetricsContext, RegistrableCollector
 from .route_patcher import patch_starlette_routes
@@ -87,13 +90,15 @@ class FastApiPrometheusMiddleware:
             return await self.app(scope, receive, send)
 
         status_code = 500
+        response_headers = []
         start_time = timeit.default_timer()
         self.global_active_requests += 1
 
         async def send_wrapper(message: Message):
-            nonlocal status_code
+            nonlocal status_code, response_headers
             if message["type"] == "http.response.start":
                 status_code = message["status"]
+                response_headers = message["headers"]
             await send(message)
 
         with ExitStack() as exit_stack:
@@ -110,11 +115,12 @@ class FastApiPrometheusMiddleware:
                 scope["metrics_context"] = {
                     "global_active_requests": self.global_active_requests,
                     "request_duration": duration,
-                    "status_code": status_code,
                 }
                 self.global_active_requests -= 1
 
-                metrics_context = MetricsContext(scope=scope)
+                response = Response(headers=Headers(raw=response_headers), status_code=status_code)
+                metrics_context = MetricsContext(scope=scope, response=response)
+
                 for metric_collector in self.metrics_collectors:
                     try:
                         metric_collector(metrics_context)
