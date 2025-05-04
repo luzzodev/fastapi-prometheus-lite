@@ -47,13 +47,9 @@ class RequestLatency(HistogramCollectorBase):
         self.group_unmatched_template: bool = group_unmatched_template
 
     def __call__(self, metrics_context: MetricsContext):
-
         duration = metrics_context.request_duration  # in seconds
         matched, path_template = metrics_context.matched_path_template
         if self.group_unmatched_template and not matched:
             path_template = "None"
 
-        self.metric.labels(
-            method=metrics_context.request_method,
-            handler=path_template
-        ).observe(duration)
+        self.metric.labels(method=metrics_context.request_method, handler=path_template).observe(duration)

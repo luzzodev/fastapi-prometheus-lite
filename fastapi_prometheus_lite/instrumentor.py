@@ -18,7 +18,7 @@ from typing import Any
 from fastapi import FastAPI, Response
 from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, CollectorRegistry, generate_latest
 
-from fastapi_prometheus_lite.collectors import LiveCollectorBase, CollectorBase
+from fastapi_prometheus_lite.collectors import CollectorBase, LiveCollectorBase
 from fastapi_prometheus_lite.middleware import FastApiPrometheusMiddleware
 
 

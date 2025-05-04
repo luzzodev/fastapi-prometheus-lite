@@ -6,13 +6,12 @@ from typing import Pattern
 
 from fastapi import FastAPI
 from prometheus_client import CollectorRegistry
-from starlette.routing import Route
 from starlette.datastructures import Headers
 from starlette.responses import Response
+from starlette.routing import Route
 from starlette.types import Message, Receive, Scope, Send
 
-
-from .collectors import LiveCollectorBase, CollectorBase, MetricsContext, RegistrableCollector
+from .collectors import CollectorBase, LiveCollectorBase, MetricsContext, RegistrableCollector
 from .route_patcher import patch_starlette_routes
 
 logger = logging.getLogger(__name__)

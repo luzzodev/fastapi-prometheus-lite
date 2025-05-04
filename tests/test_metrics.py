@@ -2,16 +2,15 @@ from typing import Any
 
 import pytest
 from prometheus_client import CollectorRegistry
+from starlette.responses import Response
 
+from fastapi_prometheus_lite.collectors.base import MetricsContext
 from fastapi_prometheus_lite.metrics.live_metrics import (
     GlobalActiveRequests,
 )
 from fastapi_prometheus_lite.metrics.post_metrics import (
     TotalRequests,
 )
-from fastapi_prometheus_lite.collectors.base import MetricsContext
-
-from starlette.responses import Response
 
 
 @pytest.fixture
