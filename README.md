@@ -88,15 +88,15 @@ Instantiate the instrumentor with optional configuration:
 ```python
 instrumentor = Instrumentor(
     registry=None,                 # optional CollectorRegistry, defaults to global
-    metrics_collectors=[],         # post-request collectors (list of MetricBase; e.g., TotalRequestsCollector())
-    live_metrics_collectors=[],    # in-request collectors (list of LiveMetricBase; e.g., GlobalActiveRequestsCollector())
+    metrics_collectors=[],         # post-request collectors (list of CollectorBase; e.g., TotalRequests())
+    live_metrics_collectors=[],    # in-request collectors (list of LiveCollectorBase; e.g., GlobalActiveRequests())
     excluded_paths=["^/health$"], # regex patterns of paths to skip
 )
 ```
 
 - **`registry`**: Prometheus `CollectorRegistry` (uses global registry if `None`).
-- **`metrics_collectors`**: list of `MetricBase` instances executed **after** each request (counters, histograms, etc.).
-- **`live_metrics_collectors`**: list of `LiveMetricBase` instances wrapping each request (**during** execution, e.g., in-flight gauges, timers).
+- **`metrics_collectors`**: list of `CollectorBase` instances executed **after** each request (counters, histograms, etc.).
+- **`live_metrics_collectors`**: list of `LiveCollectorBase` instances wrapping each request (**during** execution, e.g., in-flight gauges, timers).
 - **`excluded_paths`**: regex patterns matching request paths to skip instrumentation.
 
 ### Instrument the App
@@ -139,10 +139,10 @@ Instrumentor(...)
 
 ### Building Custom Collectors
 
-For more advanced metrics, you can extend the provided typed-base abstractions:
+For more advanced collectors, you can extend the provided typed-base abstractions:
 
-- **`CounterMetricBase`**, **`GaugeMetricBase`**, **`HistogramMetricBase`**, **`SummaryMetricBase`** for post-request collectors.
-- **`LiveCounterMetricBase`**, **`LiveGaugeMetricBase`**, **`LiveHistogramMetricBase`**, **`LiveSummaryMetricBase`** for in-request (live) collectors.
+- **`CounterCollectorBase`**, **`GaugeCollectorBase`**, **`HistogramCollectorBase`**, **`SummaryCollectorBase`** for post-request collectors.
+- **`LiveCounterCollectorBase`**, **`LiveGaugeCollectorBase`**, **`LiveHistogramCollectorBase`**, **`LiveSummaryCollectorBase`** for in-request (live) collectors.
 
 #### Example: Custom Counter
 
@@ -163,7 +163,7 @@ class MyRequestCounter(CounterCollectorBase):
         self.metric.labels(**labels).inc()
 ```
 
-#### Example: Custom Live Gauge
+#### Example: Custom Live Gauge Collector
 
 ```python
 from fastapi_prometheus_lite.collectors.typed_live_collector_bases import LiveGaugeCollectorBase
