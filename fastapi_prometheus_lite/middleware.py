@@ -9,7 +9,7 @@ from prometheus_client import CollectorRegistry
 from starlette.routing import Route
 from starlette.types import Message, Receive, Scope, Send
 
-from .metrics import LiveMetricBase, MetricBase, MetricsContext, RegistrableMetric
+from .collectors import LiveCollectorBase, CollectorBase, MetricsContext, RegistrableCollector
 from .route_patcher import patch_starlette_routes
 
 logger = logging.getLogger(__name__)
@@ -29,8 +29,8 @@ class FastApiPrometheusMiddleware:
         self,
         app: FastAPI,
         registry: CollectorRegistry,
-        metrics_collectors: list[MetricBase],
-        live_metrics_collectors: list[LiveMetricBase],
+        metrics_collectors: list[CollectorBase],
+        live_metrics_collectors: list[LiveCollectorBase],
         excluded_paths: list[str],
     ):
         """
@@ -46,13 +46,13 @@ class FastApiPrometheusMiddleware:
         """
         self.app: FastAPI = app
         self.metrics_registry: CollectorRegistry = registry
-        self.metrics_collectors: list[MetricBase] = metrics_collectors
-        self.live_metrics_collectors: list[LiveMetricBase] = live_metrics_collectors
+        self.metrics_collectors: list[CollectorBase] = metrics_collectors
+        self.live_metrics_collectors: list[LiveCollectorBase] = live_metrics_collectors
         self.global_active_requests: int = 0
         self.excluded_paths: set[Pattern] = set(re.compile(path) for path in excluded_paths)
 
         for metric_collector in self.metrics_collectors + self.live_metrics_collectors:
-            if isinstance(metric_collector, RegistrableMetric):
+            if isinstance(metric_collector, RegistrableCollector):
                 if not metric_collector.register(self.metrics_registry):
                     logger.warning(
                         f"Metric collector: {metric_collector.__class__.__name__} has been already registered "

@@ -3,13 +3,13 @@ from typing import Any
 import pytest
 from prometheus_client import CollectorRegistry
 
-from fastapi_prometheus_lite.collectors.live_collectors import (
-    GlobalActiveRequestsCollector,
+from fastapi_prometheus_lite.metrics.live_metrics import (
+    GlobalActiveRequests,
 )
-from fastapi_prometheus_lite.collectors.post_collectors import (
-    TotalRequestsCollector,
+from fastapi_prometheus_lite.metrics.post_metrics import (
+    TotalRequests,
 )
-from fastapi_prometheus_lite.metrics.base import MetricsContext
+from fastapi_prometheus_lite.collectors.base import MetricsContext
 
 
 @pytest.fixture
@@ -37,11 +37,11 @@ def scope_with_metrics(base_scope, metrics_context):
     return scope
 
 
-# ---- Post-request collectors ----
+# ---- Post-request collectors metrics ----
 def test_request_counter_increments(registry, scope_with_metrics):
     labels = {"method": "GET", "handler": "/users", "status": "200"}
     ctx = MetricsContext(scope_with_metrics)
-    rc = TotalRequestsCollector(group_unmatched_template=False, group_status_code=False, registry=registry)
+    rc = TotalRequests(group_unmatched_template=False, group_status_code=False, registry=registry)
     rc(ctx)
 
     val = registry.get_sample_value("http_requests_total", labels=labels)
@@ -52,9 +52,9 @@ def test_request_counter_increments(registry, scope_with_metrics):
     assert val2 == 2
 
 
-# ---- Live collectors ----
+# ---- Live collectors metrics ----
 def test_live_requests_gauge_inc_and_dec(registry, base_scope):
-    active_requests_collector = GlobalActiveRequestsCollector(registry=registry)
+    active_requests_collector = GlobalActiveRequests(registry=registry)
     active_requests_collector.update_scope({**base_scope})
 
     with active_requests_collector:

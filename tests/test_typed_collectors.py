@@ -2,15 +2,15 @@ import pytest
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, Summary
 
 # Import the abstract bases to test
-from fastapi_prometheus_lite.metrics import (
-    CounterMetricBase,
-    GaugeMetricBase,
-    HistogramMetricBase,
-    LiveCounterMetricBase,
-    LiveGaugeMetricBase,
-    LiveHistogramMetricBase,
-    LiveSummaryMetricBase,
-    SummaryMetricBase,
+from fastapi_prometheus_lite.collectors import (
+    CounterCollectorBase,
+    GaugeCollectorBase,
+    HistogramCollectorBase,
+    LiveCounterCollectorBase,
+    LiveGaugeCollectorBase,
+    LiveHistogramCollectorBase,
+    LiveSummaryCollectorBase,
+    SummaryCollectorBase,
 )
 
 
@@ -21,28 +21,28 @@ def registry():
 
 
 # Dummy subclasses to satisfy the abstract __call__
-class DummyCounter(CounterMetricBase):
+class DummyCounter(CounterCollectorBase):
     def __call__(self, ctx):
         pass
 
 
-class DummyGauge(GaugeMetricBase):
+class DummyGauge(GaugeCollectorBase):
     def __call__(self, ctx):
         pass
 
 
-class DummyHistogram(HistogramMetricBase):
+class DummyHistogram(HistogramCollectorBase):
     def __call__(self, ctx):
         pass
 
 
-class DummySummary(SummaryMetricBase):
+class DummySummary(SummaryCollectorBase):
     def __call__(self, ctx):
         pass
 
 
 # Dummy subclasses to satisfy the abstract __enter__, __exit__
-class LiveDummyCounter(LiveCounterMetricBase):
+class LiveDummyCounter(LiveCounterCollectorBase):
     def __enter__(self) -> "LiveDummyCounter":
         pass
 
@@ -50,7 +50,7 @@ class LiveDummyCounter(LiveCounterMetricBase):
         pass
 
 
-class LiveDummyGauge(LiveGaugeMetricBase):
+class LiveDummyGauge(LiveGaugeCollectorBase):
     def __enter__(self) -> "LiveDummyGauge":
         pass
 
@@ -58,7 +58,7 @@ class LiveDummyGauge(LiveGaugeMetricBase):
         pass
 
 
-class LiveDummyHistogram(LiveHistogramMetricBase):
+class LiveDummyHistogram(LiveHistogramCollectorBase):
     def __enter__(self) -> "LiveDummyHistogram":
         pass
 
@@ -66,7 +66,7 @@ class LiveDummyHistogram(LiveHistogramMetricBase):
         pass
 
 
-class LiveDummySummary(LiveSummaryMetricBase):
+class LiveDummySummary(LiveSummaryCollectorBase):
     def __enter__(self) -> "LiveDummySummary":
         pass
 

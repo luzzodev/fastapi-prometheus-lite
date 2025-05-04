@@ -63,14 +63,14 @@ pip install fastapi-prometheus-lite
 ```python
 from fastapi import FastAPI
 from fastapi_prometheus_lite import Instrumentor
-from fastapi_prometheus_lite.collectors.post_collectors import TotalRequestsCollector
-from fastapi_prometheus_lite.collectors.live_collectors import GlobalActiveRequestsCollector
+from fastapi_prometheus_lite.metrics.post_metrics import TotalRequests
+from fastapi_prometheus_lite.metrics.live_metrics import GlobalActiveRequests
 
 app = FastAPI()
 
 instrumentor = Instrumentor(
-    metrics_collectors=[TotalRequestsCollector()],
-    live_metrics_collectors=[GlobalActiveRequestsCollector()],
+    metrics_collectors=[TotalRequests()],
+    live_metrics_collectors=[GlobalActiveRequests()],
     excluded_paths=["^/docs"]
 ).instrument(app).expose(app)
 ```
@@ -147,15 +147,16 @@ For more advanced metrics, you can extend the provided typed-base abstractions:
 #### Example: Custom Counter
 
 ```python
-from fastapi_prometheus_lite.metrics.typed_metric_bases import CounterMetricBase
-from fastapi_prometheus_lite.metrics.base import MetricsContext
+from fastapi_prometheus_lite.collectors.typed_collector_bases import CounterCollectorBase
+from fastapi_prometheus_lite.collectors.base import MetricsContext
 
-class MyRequestCounter(CounterMetricBase):
+
+class MyRequestCounter(CounterCollectorBase):
     def __call__(self, ctx: MetricsContext):
         matched, path_format = ctx.matched_path_template
         labels = {
             "method": ctx.request_method,
-            "path":   path_format,
+            "path": path_format,
             "status": str(ctx.response_status_code),
         }
         # Increment the counter with custom labels
@@ -165,9 +166,10 @@ class MyRequestCounter(CounterMetricBase):
 #### Example: Custom Live Gauge
 
 ```python
-from fastapi_prometheus_lite.metrics.typed_live_metric_bases import LiveGaugeMetricBase
+from fastapi_prometheus_lite.collectors.typed_live_collector_bases import LiveGaugeCollectorBase
 
-class InFlightRequestsGauge(LiveGaugeMetricBase):
+
+class InFlightRequestsGauge(LiveGaugeCollectorBase):
     def __enter__(self):
         labels = {"method": self._scope["method"], "path": self._scope["path"]}
         self.metric.labels(**labels).inc()

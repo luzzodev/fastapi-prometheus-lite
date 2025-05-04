@@ -2,10 +2,10 @@ from typing import Any, Iterable, Optional
 
 from prometheus_client import CollectorRegistry
 
-from fastapi_prometheus_lite.metrics import LiveGaugeMetricBase
+from fastapi_prometheus_lite.collectors import LiveGaugeCollectorBase
 
 
-class GlobalActiveRequestsCollector(LiveGaugeMetricBase):
+class GlobalActiveRequests(LiveGaugeCollectorBase):
     def __init__(
         self,
         metric_name: str = "http_active_requests",
@@ -16,7 +16,7 @@ class GlobalActiveRequestsCollector(LiveGaugeMetricBase):
     ):
         super().__init__(metric_name, metric_doc, labelnames=labelnames, registry=registry, **kwargs)
 
-    def __enter__(self) -> "GlobalActiveRequestsCollector":
+    def __enter__(self) -> "GlobalActiveRequests":
         self.metric.inc()
         return self
 

@@ -18,7 +18,7 @@ from typing import Any
 from fastapi import FastAPI, Response
 from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, CollectorRegistry, generate_latest
 
-from fastapi_prometheus_lite.metrics import LiveMetricBase, MetricBase
+from fastapi_prometheus_lite.collectors import LiveCollectorBase, CollectorBase
 from fastapi_prometheus_lite.middleware import FastApiPrometheusMiddleware
 
 
@@ -34,8 +34,8 @@ class FastApiPrometheusLite:
     def __init__(
         self,
         registry: CollectorRegistry | None = None,
-        metrics_collectors: list[MetricBase] | None = None,
-        live_metrics_collectors: list[LiveMetricBase] | None = None,
+        metrics_collectors: list[CollectorBase] | None = None,
+        live_metrics_collectors: list[LiveCollectorBase] | None = None,
         excluded_paths: list[str] | None = None,
     ):
         """
@@ -55,8 +55,8 @@ class FastApiPrometheusLite:
         :type excluded_paths: Optional[list[str]]
         """
         self.registry = registry or REGISTRY
-        self.metrics_collectors: list[MetricBase] = []
-        self.live_metrics_collectors: list[LiveMetricBase] = []
+        self.metrics_collectors: list[CollectorBase] = []
+        self.live_metrics_collectors: list[LiveCollectorBase] = []
         self.excluded_paths: list[str] = []
 
         if metrics_collectors is not None:

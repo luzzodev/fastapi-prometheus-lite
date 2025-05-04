@@ -3,10 +3,10 @@ from typing import Any, Iterable, Optional
 
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, Summary
 
-from .base import LiveMetricBase, RegistrableMetric
+from fastapi_prometheus_lite.collectors.base import LiveCollectorBase, RegistrableCollector
 
 
-class LiveCounterMetricBase(LiveMetricBase, RegistrableMetric):
+class LiveCounterCollectorBase(LiveCollectorBase, RegistrableCollector):
     """
     Base for Counter‐style live metrics.
 
@@ -29,7 +29,7 @@ class LiveCounterMetricBase(LiveMetricBase, RegistrableMetric):
         return self._metric
 
     @abstractmethod
-    def __enter__(self) -> "LiveCounterMetricBase":
+    def __enter__(self) -> "LiveCounterCollectorBase":
         """
         Called at request start. Use self.metric.labels(**...) to inc().
         """
@@ -41,7 +41,7 @@ class LiveCounterMetricBase(LiveMetricBase, RegistrableMetric):
         """
 
 
-class LiveGaugeMetricBase(LiveMetricBase, RegistrableMetric):
+class LiveGaugeCollectorBase(LiveCollectorBase, RegistrableCollector):
     """
     Base for Gauge‐style live metrics.
 
@@ -64,7 +64,7 @@ class LiveGaugeMetricBase(LiveMetricBase, RegistrableMetric):
         return self._metric
 
     @abstractmethod
-    def __enter__(self) -> "LiveGaugeMetricBase":
+    def __enter__(self) -> "LiveGaugeCollectorBase":
         """
         Called at request start. Use self.metric.labels(**...) to set/inc().
         """
@@ -76,7 +76,7 @@ class LiveGaugeMetricBase(LiveMetricBase, RegistrableMetric):
         """
 
 
-class LiveHistogramMetricBase(LiveMetricBase, RegistrableMetric):
+class LiveHistogramCollectorBase(LiveCollectorBase, RegistrableCollector):
     """
     Base for Histogram‐style live metrics.
 
@@ -99,7 +99,7 @@ class LiveHistogramMetricBase(LiveMetricBase, RegistrableMetric):
         return self._metric
 
     @abstractmethod
-    def __enter__(self) -> "LiveHistogramMetricBase":
+    def __enter__(self) -> "LiveHistogramCollectorBase":
         """
         Called at request start. Could start a timer, etc.
         """
@@ -111,7 +111,7 @@ class LiveHistogramMetricBase(LiveMetricBase, RegistrableMetric):
         """
 
 
-class LiveSummaryMetricBase(LiveMetricBase, RegistrableMetric):
+class LiveSummaryCollectorBase(LiveCollectorBase, RegistrableCollector):
     """
     Base for Summary‐style live metrics.
 
@@ -134,7 +134,7 @@ class LiveSummaryMetricBase(LiveMetricBase, RegistrableMetric):
         return self._metric
 
     @abstractmethod
-    def __enter__(self) -> "LiveSummaryMetricBase":
+    def __enter__(self) -> "LiveSummaryCollectorBase":
         """
         Called at request start. Could record a start time.
         """

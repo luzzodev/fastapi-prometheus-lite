@@ -5,7 +5,7 @@ from prometheus_client.metrics import Collector, CollectorRegistry
 from starlette.requests import HTTPConnection
 from starlette.types import Scope
 
-from ..utils import extract_path_template_from_scope
+from fastapi_prometheus_lite.utils import extract_path_template_from_scope
 
 
 class MetricsContext(HTTPConnection):
@@ -93,7 +93,7 @@ class MetricsContext(HTTPConnection):
         return self._response_status_code
 
 
-class RegistrableMetric(ABC):
+class RegistrableCollector(ABC):
     """
     Mixin that gives you:
 
@@ -105,7 +105,7 @@ class RegistrableMetric(ABC):
 
     def register(self, registry: CollectorRegistry) -> bool:
         """
-        Register `self.metric` into the given registry.
+        Register `self._metric` into the given registry.
         Safe to call multiple times.
         """
         if self._metric is None:
@@ -118,11 +118,11 @@ class RegistrableMetric(ABC):
         return True
 
 
-class MetricBase(ABC):
+class CollectorBase(ABC):
     """
     Abstract base class for post-request metric collectors.
 
-    Classes that inherit from MetricBase are called after the response is complete,
+    Classes that inherit from CollectorBase are called after the response is complete,
     and receive a `MetricsContext` containing request and response metadata.
     """
 
@@ -137,7 +137,7 @@ class MetricBase(ABC):
         pass
 
 
-class LiveMetricBase(ABC):
+class LiveCollectorBase(ABC):
     """
     Abstract base class for live (in-request) metric collectors.
 
@@ -162,22 +162,22 @@ class LiveMetricBase(ABC):
         self._scope = scope
 
     @abstractmethod
-    def __enter__(self) -> "LiveMetricBase":
+    def __enter__(self) -> "LiveCollectorBase":
         """
-        Enter the metric lifecycle context.
+        Enter the collector lifecycle context.
 
         Called at the beginning of the request. Should be implemented
         to start timers, increment counters, or allocate resources.
 
-        :return: The metric instance itself.
-        :rtype: LiveMetricBase
+        :return: The collector instance itself.
+        :rtype: LiveCollectorBase
         """
         pass
 
     @abstractmethod
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
-        Exit the metric lifecycle context.
+        Exit the collector lifecycle context.
 
         Called at the end of the request. Should be implemented
         to stop timers, decrement counters, or clean up state.

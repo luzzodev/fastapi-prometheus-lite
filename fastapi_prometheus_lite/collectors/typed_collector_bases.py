@@ -3,10 +3,10 @@ from typing import Any, Iterable, Optional
 
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, Summary
 
-from .base import MetricBase, MetricsContext, RegistrableMetric
+from fastapi_prometheus_lite.collectors.base import CollectorBase, MetricsContext, RegistrableCollector
 
 
-class CounterMetricBase(MetricBase, RegistrableMetric):
+class CounterCollectorBase(CollectorBase, RegistrableCollector):
     """
     Base for Counter-style metrics.
 
@@ -39,7 +39,7 @@ class CounterMetricBase(MetricBase, RegistrableMetric):
         """
 
 
-class GaugeMetricBase(MetricBase, RegistrableMetric):
+class GaugeCollectorBase(CollectorBase, RegistrableCollector):
     """
     Base for Gauge-style metrics.
 
@@ -68,7 +68,7 @@ class GaugeMetricBase(MetricBase, RegistrableMetric):
         """
 
 
-class HistogramMetricBase(MetricBase, RegistrableMetric):
+class HistogramCollectorBase(CollectorBase, RegistrableCollector):
     """
     Base for Histogram-style metrics.
 
@@ -97,7 +97,7 @@ class HistogramMetricBase(MetricBase, RegistrableMetric):
         """
 
 
-class SummaryMetricBase(MetricBase, RegistrableMetric):
+class SummaryCollectorBase(CollectorBase, RegistrableCollector):
     """
     Base for Summary-style metrics.
 

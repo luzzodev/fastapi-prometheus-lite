@@ -2,10 +2,10 @@ from typing import Any, Iterable, Optional
 
 from prometheus_client import CollectorRegistry
 
-from fastapi_prometheus_lite.metrics import CounterMetricBase, MetricsContext
+from fastapi_prometheus_lite.collectors import CounterCollectorBase, MetricsContext
 
 
-class TotalRequestsCollector(CounterMetricBase):
+class TotalRequests(CounterCollectorBase):
     def __init__(
         self,
         metric_name: str = "http_requests_total",
