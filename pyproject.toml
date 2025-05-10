@@ -1,6 +1,6 @@
 [project]
 name = "fastapi-prometheus-lite"
-version = "0.2.1"
+version = "0.2.2"
 description = "A minimal and fast Prometheus middleware for FastAPI"
 authors = [
     { name = "Ludovico Conti", email = "" },
@@ -68,3 +68,20 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "I001"]
+
+
+[tool.coverage.run]
+parallel = true
+data_file = "coverage/.coverage"
+source = [
+    "tests",
+    "fastapi_prometheus_lite"
+]
+context = '${CONTEXT}'
+
+[tool.coverage.report]
+show_missing = true
+sort = "-Cover"
+
+[tool.coverage.html]
+show_contexts = true
