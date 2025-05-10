@@ -25,7 +25,7 @@ A fast, minimal Prometheus middleware for FastAPI — no multiprocessing, no env
 > - Does *not* support multi-worker (prefork) deployments. If you run multiple Gunicorn/Uvicorn workers in the same process, metrics will not aggregate correctly.
 > - Works correctly when you deploy multiple **replicas** (separate processes or containers) behind a load‑balancer, since each replica maintains its own registry.
 > - Live collectors cannot access the route template (`matched_path_template`) in the ASGI scope; only post-request collectors can utilize it for labeling.
-> - Instrumentation currently supports only base HTTP and WebSocket routes patched via Starlette; mounted sub-applications (e.g., static file mounts) and other route types are not supported.
+> - Instrumentation currently supports only base HTTP and WebSocket routes patched via Starlette.
 
 ### ✨ Why Lite?
 
@@ -157,7 +157,7 @@ class MyRequestCounter(CounterCollectorBase):
         labels = {
             "method": ctx.request_method,
             "path": path_format,
-            "status": str(ctx.response_status_code),
+            "status": str(ctx.response.status_code),
         }
         # Increment the counter with custom labels
         self.metric.labels(**labels).inc()
