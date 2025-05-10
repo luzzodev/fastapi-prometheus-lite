@@ -1,10 +1,11 @@
 from typing import Union
 
-from starlette.routing import Match, Route, WebSocketRoute
+from starlette.routing import Match, Mount, Route, WebSocketRoute
+from starlette.staticfiles import StaticFiles
 from starlette.types import Scope
 
 # Type alias to represent any supported route type
-RouteType = Union[Route, WebSocketRoute]
+RouteType = Union[Route, Mount, WebSocketRoute]
 
 
 def patched_matches(self: RouteType, scope: Scope) -> tuple[Match, Scope]:
@@ -19,18 +20,28 @@ def patched_matches(self: RouteType, scope: Scope) -> tuple[Match, Scope]:
     :param scope: The ASGI scope dictionary.
     :return: A tuple of (Match enum, updated scope).
     """
-    match, scope = getattr(self, "__original_matches")(scope)
+    match, child_scope = getattr(self, "__original_matches")(scope)
 
     if match != Match.NONE:
-        scope["matched_path_template"] = self.path
+        # Determine the matched path
+        root_path = scope.get("root_path", "")
+        matched_path = self.path
 
-    return match, scope
+        if isinstance(self, Mount):
+            matched_path = self.path_format
+            if not isinstance(self.app, StaticFiles):
+                return match, child_scope  # Skip StaticFiles mounts
+
+        # Inject matched path template into child scope
+        child_scope["matched_path_template"] = root_path + matched_path
+
+    return match, child_scope
 
 
 def patch_starlette_routes(*route_classes: type[RouteType]) -> None:
     """
     Monkey-patches the matches() method of the given Starlette route classes
-    (typically Route and WebSocketRoute) to enrich the ASGI scope with
+    (typically Route and WebSocketRoute, Mount) to enrich the ASGI scope with
     the matched route path.
 
     This is useful when route information is needed early in the request lifecycle,
@@ -42,7 +53,7 @@ def patch_starlette_routes(*route_classes: type[RouteType]) -> None:
     """
     for route_class in route_classes:
         if not hasattr(route_class, "__original_matches"):
-            # Preserve the original method for potential unpatching/debugging
+            # Preserve the original method for potential un-patching/debugging
             setattr(route_class, "__original_matches", route_class.matches)
 
             # Override the method with the patched version
