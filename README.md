@@ -9,7 +9,6 @@ A fast, minimal Prometheus middleware for FastAPI — no multiprocessing, no env
 ## 📋 Table of Contents
 
 - [Description](#📖-description)
-- [Installation](#💿-installation)
 - [Quickstart](#🚀-quickstart)
 - [Instrumentor Usage](#⚙️-instrumentor-usage)
 - [Building Custom Collectors](#building-custom-collectors)
@@ -48,15 +47,6 @@ It’s perfect for lean microservices, observability-conscious APIs, and product
 
 > ⚠️ **Note**: This project was developed for **personal use and as a showcase of FastAPI middleware design**. It is not intended to be a production-ready replacement for full-featured solutions. Feel free to use it as inspiration, reference, or a learning tool — not as a drop-in replacement unless you've reviewed and tailored it to your own needs.
 
----
-
-## 💿 Installation
-
-```bash
-pip install fastapi-prometheus-lite
-```
-
----
 
 ## 🚀 Quickstart
 
@@ -196,5 +186,5 @@ instrumentor = Instrumentor(
 
 This project is heavily inspired by [prometheus-fastapi-instrumentator](https://github.com/trallnag/prometheus-fastapi-instrumentator) by [@trallnag](https://github.com/trallnag).
 
-It borrows the overall design philosophy of exposing route-aware, labeled Prometheus metrics for FastAPI applications. However, the codebase here is a ground-up reimplementation focused on simplicity, performance, and explicit configuration.
+It borrows the overall design philosophy of exposing route-aware, labeled Prometheus metrics for FastAPI applications.
 
