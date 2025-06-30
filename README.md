@@ -81,6 +81,7 @@ instrumentor = Instrumentor(
     metrics_collectors=[],         # post-request collectors (list of CollectorBase; e.g., TotalRequests())
     live_metrics_collectors=[],    # in-request collectors (list of LiveCollectorBase; e.g., GlobalActiveRequests())
     excluded_paths=["^/health$"], # regex patterns of paths to skip
+    static_labels  = None, # a dictionary[str, str] containing static labels
 )
 ```
 
@@ -88,6 +89,7 @@ instrumentor = Instrumentor(
 - **`metrics_collectors`**: list of `CollectorBase` instances executed **after** each request (counters, histograms, etc.).
 - **`live_metrics_collectors`**: list of `LiveCollectorBase` instances wrapping each request (**during** execution, e.g., in-flight gauges, timers).
 - **`excluded_paths`**: regex patterns matching request paths to skip instrumentation.
+- **`static_labels`**: a dictionary[str, str] containing static labels.
 
 ### Instrument the App
 
@@ -126,6 +128,20 @@ Instrumentor(...)
     .instrument(app)
     .expose(app)
 ```
+
+### Static Labels
+From 0.4.0 static labels are supported. This feature is intended to support those use-cases where you want to collect
+data with a fine level of detail and you do not want to deal with aggregation at this level. Ex pod, replica, etc.
+Keep in mind anyway that this could affect cardinality and should be used only for specific well known cases.
+
+Note:
+ In the current implementation the static labels are supported only under the usage of generate_latest offered by
+ the current lib. 
+```python
+from fastapi_prometheus_lite.registry.utils import generate_latest
+```
+Now this is the default function used in the /metric endpoint.
+Static Labels are attached to all metrics only at generation time and are not part of any collector in any way.
 
 ### Building Custom Collectors
 
