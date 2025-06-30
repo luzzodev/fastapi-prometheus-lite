@@ -11,15 +11,19 @@ Credits:
 This codebase borrows the idea of modular metric collectors and ASGI middleware-driven instrumentation,
 adapted into a minimalistic and flexible form.
 """
-
+import logging
 from enum import Enum
 from typing import Any
 
 from fastapi import FastAPI, Response
-from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, CollectorRegistry, generate_latest
+from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, CollectorRegistry
 
 from fastapi_prometheus_lite.collectors import CollectorBase, LiveCollectorBase
 from fastapi_prometheus_lite.middleware import FastApiPrometheusMiddleware
+from fastapi_prometheus_lite.registry.utils import generate_latest
+
+
+logger = logging.getLogger(__name__)
 
 
 class FastApiPrometheusLite:
@@ -37,6 +41,7 @@ class FastApiPrometheusLite:
         metrics_collectors: list[CollectorBase] | None = None,
         live_metrics_collectors: list[LiveCollectorBase] | None = None,
         excluded_paths: list[str] | None = None,
+        static_labels: dict[str, str] | None = None,
     ):
         """
         Initialize the Prometheus metrics integration handler.
@@ -53,11 +58,16 @@ class FastApiPrometheusLite:
 
         :param excluded_paths: A list of path that will be excluded from the tracking.
         :type excluded_paths: Optional[list[str]]
+
+        :param static_labels: A dict containing static labels to add to each metric on output.
+            This will not affect internal labels: static labels will be added only on generate_latest
+        :type static_labels: Optional[Dict[str, str]]
         """
         self.registry = registry or REGISTRY
         self.metrics_collectors: list[CollectorBase] = []
         self.live_metrics_collectors: list[LiveCollectorBase] = []
         self.excluded_paths: list[str] = []
+        self._static_labels: dict[str, str] | None = static_labels
 
         if metrics_collectors is not None:
             self.metrics_collectors = metrics_collectors
@@ -118,7 +128,7 @@ class FastApiPrometheusLite:
         assert isinstance(app, FastAPI), "Metrics must be exposed on FastApi app!"
 
         def metrics_endpoint() -> Response:
-            response = Response(content=generate_latest(self.registry))
+            response = Response(content=generate_latest(self.registry, static_labels=self._static_labels))
             response.headers.append("Content-Type", CONTENT_TYPE_LATEST)
             return response
 
