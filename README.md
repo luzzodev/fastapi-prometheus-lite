@@ -40,7 +40,7 @@ Compared to full-fledged solutions, this package intentionally avoids:
 Instead, it focuses on:
 - ✅ Precise, labeled Prometheus metrics (`http_requests_total`, `http_request_duration_seconds`)
 - ✅ Zero-config setup with FastAPI’s native middleware interface
-- ✅ Minimal dependency tree (just `fastapi` and `prometheus-client`)
+- ✅ Minimal dependency tree (just `fastapi`, `starlette`, and `prometheus-client`)
 - ✅ ASGI-native implementation with optional Starlette type support
 
 It’s perfect for lean microservices, observability-conscious APIs, and production-like setups where **performance and control matter**.

@@ -22,7 +22,14 @@ classifiers = [
 dependencies = [
     "fastapi>=0.110.0,<1.0.0",
     "prometheus-client>=0.20.0,<1.0.0",
-    "starlette"
+    "starlette",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.0",
+    "pytest-asyncio>=1.4.0",
 ]
 
 [project.urls]
