@@ -1,0 +1,12 @@
+# See https://pre-commit.com for usage.
+# Install the git hook once with: uv run pre-commit install
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Keep this rev in sync with the `ruff` pin in pyproject.toml [dependency-groups].
+    rev: v0.15.17
+    hooks:
+      # Linter (auto-fixes what it safely can); run before the formatter.
+      - id: ruff-check
+        args: [--fix]
+      # Formatter.
+      - id: ruff-format
