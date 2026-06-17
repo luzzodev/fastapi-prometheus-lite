@@ -11,6 +11,7 @@ Credits:
 This codebase borrows the idea of modular metric collectors and ASGI middleware-driven instrumentation,
 adapted into a minimalistic and flexible form.
 """
+
 import logging
 from enum import Enum
 from typing import Any
@@ -21,7 +22,6 @@ from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, CollectorRegistry
 from fastapi_prometheus_lite.collectors import CollectorBase, LiveCollectorBase
 from fastapi_prometheus_lite.middleware import FastApiPrometheusMiddleware
 from fastapi_prometheus_lite.registry.utils import generate_latest
-
 
 logger = logging.getLogger(__name__)
 
