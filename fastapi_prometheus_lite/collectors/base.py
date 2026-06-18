@@ -1,5 +1,6 @@
 import typing
 from abc import ABC, abstractmethod
+from contextvars import ContextVar
 
 from prometheus_client.metrics import Collector, CollectorRegistry
 from starlette.requests import HTTPConnection
@@ -140,9 +141,26 @@ class LiveCollectorBase(ABC):
 
     def __init__(self):
         """
-        Initialize the live metric base with an empty ASGI scope.
+        Initialize the live metric base.
+
+        The current request's ASGI scope is held in a per-instance
+        :class:`~contextvars.ContextVar` rather than a plain attribute. Because
+        each request runs in its own task (which copies the context on
+        creation), the scope seen by ``__enter__`` and ``__exit__`` is isolated
+        per request. This prevents a concurrent request from corrupting the
+        scope between entry and exit, which would otherwise cause this single
+        shared collector instance to ``dec()`` a different label set than it
+        ``inc()``'d.
         """
-        self._scope: Scope = {}
+        # Created once per instance (instances are built once at app setup):
+        # per-request would leak (ContextVars are never GC'd) and class-level
+        # would be clobbered by sibling instances of the same class.
+        self._scope_var: ContextVar[Scope] = ContextVar("live_collector_scope", default={})
+
+    @property
+    def _scope(self) -> Scope:
+        """The current request's ASGI scope, isolated per request."""
+        return self._scope_var.get()
 
     def update_scope(self, scope: Scope):
         """
@@ -151,7 +169,7 @@ class LiveCollectorBase(ABC):
         :param scope: The current request's ASGI scope.
         :type scope: Scope
         """
-        self._scope = scope
+        self._scope_var.set(scope)
 
     @abstractmethod
     def __enter__(self) -> "LiveCollectorBase":
