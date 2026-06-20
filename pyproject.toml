@@ -1,6 +1,6 @@
 [project]
 name = "fastapi-prometheus-lite"
-version = "0.5.0"
+version = "0.6.0"
 description = "A minimal and fast Prometheus middleware for FastAPI"
 authors = [
     { name = "Ludovico Conti", email = "" },
@@ -20,7 +20,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "fastapi>=0.110.0,<0.137",
+    "fastapi>=0.110.0",
     "prometheus-client>=0.20.0,<1.0.0",
     "starlette",
 ]
