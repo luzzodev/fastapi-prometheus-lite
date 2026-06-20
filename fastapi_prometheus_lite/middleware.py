@@ -12,7 +12,7 @@ from starlette.routing import Mount, Route
 from starlette.types import Message, Receive, Scope, Send
 
 from .collectors import CollectorBase, LiveCollectorBase, MetricsContext, RegistrableCollector
-from .starlette_patcher import patch_starlette_routes
+from .starlette_patcher import EffectiveRouteContext, patch_starlette_routes
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,9 @@ class FastApiPrometheusMiddleware:
                         f"on this registry."
                     )
 
-        patch_starlette_routes(Route, Mount)
+        # EffectiveRouteContext is a private FastAPI class (or None on <0.137); the
+        # conditional RouteType alias widening can't be followed statically.
+        patch_starlette_routes(Route, Mount, EffectiveRouteContext)  # type: ignore[arg-type]
 
     def _is_path_excluded(self, scope: Scope) -> bool:
         requested_path: str = scope.get("path", None)
