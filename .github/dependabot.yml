@@ -1,0 +1,35 @@
+# Dependabot keeps dependencies and CI actions current.
+#
+# Why this matters for this project: the library monkey-patches a *private*
+# FastAPI internal (``fastapi.routing._EffectiveRouteContext``) and Starlette's
+# ``Route.matches``. A new FastAPI/Starlette release can move that ground out
+# from under us. By having Dependabot bump the locked versions in ``uv.lock``,
+# every new release lands as a PR that runs the full CI matrix (see
+# ``.github/workflows/ci.yml``) — turning our test suite into a breaking-change
+# tripwire that fires on each upstream release.
+version: 2
+updates:
+  # Python dependencies, resolved from uv.lock.
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      # Bump fastapi + starlette together — they are tightly coupled and this
+      # is exactly the pair whose changes can break our patch.
+      fastapi-stack:
+        patterns:
+          - "fastapi"
+          - "starlette"
+    labels:
+      - "dependencies"
+
+  # Keep the GitHub Actions used in our workflows up to date.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "github-actions"

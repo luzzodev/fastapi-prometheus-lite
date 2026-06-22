@@ -90,7 +90,7 @@ class FastApiPrometheusLite:
         """
         app.add_middleware(
             FastApiPrometheusMiddleware,
-            self.registry,
+            registry=self.registry,
             metrics_collectors=self.metrics_collectors,
             live_metrics_collectors=self.live_metrics_collectors,
             excluded_paths=self.excluded_paths,

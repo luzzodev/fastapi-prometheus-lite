@@ -109,7 +109,7 @@ wheels = [
 
 [[package]]
 name = "fastapi-prometheus-lite"
-version = "0.5.0"
+version = "0.6.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
@@ -128,7 +128,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.110.0" },
+    { name = "fastapi", specifier = ">=0.115.1" },
     { name = "prometheus-client", specifier = ">=0.20.0,<1.0.0" },
     { name = "starlette" },
 ]
