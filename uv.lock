@@ -128,7 +128,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.138.0" },
+    { name = "fastapi", specifier = ">=0.115.1" },
     { name = "prometheus-client", specifier = ">=0.20.0,<1.0.0" },
     { name = "starlette" },
 ]
