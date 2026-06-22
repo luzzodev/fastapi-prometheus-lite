@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      # Pinned to match the rev in .pre-commit-config.yaml and the dev pin in
+      # pyproject.toml [dependency-groups]. Keep all three in sync.
+      - name: ruff check
+        run: uvx ruff@0.15.17 check .
+      - name: ruff format --check
+        run: uvx ruff@0.15.17 format --check .
+
+  test:
+    name: py${{ matrix.python }} · fastapi ${{ matrix.fastapi }}
+    runs-on: ubuntu-latest
+    strategy:
+      # One red cell shouldn't cancel the others — we want the full picture of
+      # which Python/FastAPI combination broke.
+      fail-fast: false
+      matrix:
+        include:
+          # --- Full Python sweep against the latest stable FastAPI ---
+          # Guarantees the patch works across every supported interpreter on
+          # whatever FastAPI ships today.
+          - { python: "3.10", fastapi: "latest" }
+          - { python: "3.11", fastapi: "latest" }
+          - { python: "3.12", fastapi: "latest" }
+          - { python: "3.13", fastapi: "latest" }
+          - { python: "3.14", fastapi: "latest" }
+          # --- FastAPI version sweep on a stable interpreter (3.12) ---
+          # This is the regression net around the _EffectiveRouteContext
+          # boundary that starlette_patcher.py straddles with try/except.
+          - { python: "3.12", fastapi: "0.110.0" } # declared floor (fastapi>=0.110.0)
+          - { python: "3.12", fastapi: "0.136.0" } # last release BEFORE _EffectiveRouteContext
+          - { python: "3.12", fastapi: "0.137.0" } # first release WITH _EffectiveRouteContext
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install Python ${{ matrix.python }}
+        run: uv python install ${{ matrix.python }}
+
+      - name: Sync project + dev dependencies
+        run: uv sync --group dev --python ${{ matrix.python }}
+
+      # Override the locked FastAPI with the matrix version. We use the low-level
+      # `uv pip install` so it pins exactly what we ask (and pulls a compatible
+      # Starlette), then run pytest with --no-sync so uv doesn't revert it.
+      - name: Pin FastAPI (${{ matrix.fastapi }})
+        run: |
+          if [ "${{ matrix.fastapi }}" = "latest" ]; then
+            uv pip install --upgrade fastapi
+          else
+            uv pip install "fastapi==${{ matrix.fastapi }}"
+          fi
+
+      - name: Show resolved versions
+        run: |
+          uv run --no-sync python - <<'PY'
+          import fastapi, starlette
+          print("fastapi  ", fastapi.__version__)
+          print("starlette", starlette.__version__)
+          try:
+              from fastapi.routing import _EffectiveRouteContext
+              print("_EffectiveRouteContext: present")
+          except ImportError:
+              print("_EffectiveRouteContext: ABSENT (pre-0.137 path)")
+          PY
+
+      - name: Run tests
+        run: uv run --no-sync pytest -v
