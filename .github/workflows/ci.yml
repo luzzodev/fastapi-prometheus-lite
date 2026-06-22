@@ -29,6 +29,7 @@ jobs:
   test:
     name: py${{ matrix.python }} · fastapi ${{ matrix.fastapi }}
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     strategy:
       # One red cell shouldn't cancel the others — we want the full picture of
       # which Python/FastAPI combination broke.
@@ -46,7 +47,7 @@ jobs:
           # --- FastAPI version sweep on a stable interpreter (3.12) ---
           # This is the regression net around the _EffectiveRouteContext
           # boundary that starlette_patcher.py straddles with try/except.
-          - { python: "3.12", fastapi: "0.110.0" } # declared floor (fastapi>=0.110.0)
+          - { python: "3.12", fastapi: "0.115.1" } # real-world floor (services run 0.115.x)
           - { python: "3.12", fastapi: "0.136.0" } # last release BEFORE _EffectiveRouteContext
           - { python: "3.12", fastapi: "0.137.0" } # first release WITH _EffectiveRouteContext
     steps:
