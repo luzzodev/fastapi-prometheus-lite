@@ -1,0 +1,43 @@
+name: Release
+
+# Build the distribution and attach it to the GitHub Release that triggered
+# this run. We deliberately do NOT publish to PyPI — the GitHub Release is the
+# only distribution channel for now.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write # required for `gh release upload` to attach assets
+
+jobs:
+  build:
+    name: Build & attach to release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      # The version is single-sourced from fastapi_prometheus_lite/__init__.py
+      # via hatchling's dynamic version. Guard against publishing a release
+      # whose tag (e.g. v0.6.0) disagrees with that version.
+      - name: Verify tag matches package version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(uvx hatchling version)"
+          echo "tag=$tag  package version=$version"
+          if [ "$tag" != "$version" ]; then
+            echo "::error::Release tag '$GITHUB_REF_NAME' does not match package version '$version'"
+            exit 1
+          fi
+
+      - name: Build sdist + wheel
+        run: uv build
+
+      - name: Attach artifacts to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" dist/* --clobber
