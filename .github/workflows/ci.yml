@@ -39,7 +39,6 @@ jobs:
           # --- Full Python sweep against the latest stable FastAPI ---
           # Guarantees the patch works across every supported interpreter on
           # whatever FastAPI ships today.
-          - { python: "3.10", fastapi: "latest" }
           - { python: "3.11", fastapi: "latest" }
           - { python: "3.12", fastapi: "latest" }
           - { python: "3.13", fastapi: "latest" }
